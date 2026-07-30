@@ -21,4 +21,10 @@ An IoT-based animal detection system that uses ESP32, PIR, Ultrasonic, and Piezo
 
 Result:
 
-Successfully detects animal intrusion with real-time alerts, image capture, and cloud-based data logging for effective remote monitoring. 
+Successfully detects animal intrusion with real-time alerts, image capture, and cloud-based data logging for effective remote monitoring.
+
+
+
+<img width="720" height="1600" alt="Image" src="https://github.com/user-attachments/assets/6dfbc41d-bf41-4c2a-b4f8-d280bfb94e65" />
+<img width="581" height="278" alt="Image" src="https://github.com/user-attachments/assets/ea40ec8d-394a-4d70-8e05-6ca46cbd4e4a" />
+<img width="1600" height="1054" alt="Image" src="https://github.com/user-attachments/assets/c8fbc66e-4e9e-41d6-8732-ab9106401eba" />
