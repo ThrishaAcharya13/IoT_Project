@@ -1,0 +1,179 @@
+#define BLYNK_TEMPLATE_ID "TMPL3fkMlM_vd"
+#define BLYNK_TEMPLATE_NAME "animal intrusion"
+#define BLYNK_AUTH_TOKEN "XHLADmXfZCFgxszB4pBVRlHRVcXEg7hj"
+
+#define BLYNK_PRINT Serial
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <BlynkSimpleEsp32.h>
+
+// WiFi
+char ssid[] = "wifi_nmae";
+char pass[] = "wifi_password";
+
+// ThingSpeak
+String apiKey = "thingspeak_api";
+String server = "http://api.thingspeak.com/update";
+
+// Pins
+#define PIR_PIN   13
+#define TRIG_PIN  12
+#define ECHO_PIN  14
+#define VIB_PIN   34
+#define BUZZER_PIN 27  
+BlynkTimer timer;
+
+unsigned long lastAlertTime = 0;
+unsigned long lastMotionTime = 0;
+unsigned long detectHold = 0;
+
+unsigned long buzzerStartTime = 0;
+bool buzzerActive = false;
+bool prevDetect = false;
+
+long duration;
+float distance;
+
+// Camera
+String camURL = "http://10.107.201.101/capture";
+
+
+float getDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  duration = pulseIn(ECHO_PIN, HIGH, 30000);
+  if (duration == 0) return 999;
+
+  return duration * 0.034 / 2.0;
+}
+
+bool checkVibration() {
+  int count = 0;
+  int threshold = 500;
+
+  for (int i = 0; i < 5; i++) {
+    if (analogRead(VIB_PIN) > threshold) count++;
+    delay(10);
+  }
+  return (count >= 2);
+}
+void triggerCamera() {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  HTTPClient http;
+  http.begin(camURL);
+  http.GET();
+  http.end();
+}
+
+void sendData() {
+
+  int pirRaw = digitalRead(PIR_PIN);
+  distance = getDistance();
+  bool vibDetected = checkVibration();
+
+  // PIR HOLD
+  if (pirRaw == HIGH) lastMotionTime = millis();
+  bool pirActive = (millis() - lastMotionTime < 2000);
+
+  Serial.print("PIR: ");
+  Serial.print(pirActive);
+  Serial.print(" | Distance: ");
+  Serial.print(distance);
+  Serial.print(" | Vib: ");
+  Serial.println(vibDetected);
+
+  
+  bool animalDetected = (pirActive && distance < 50 && vibDetected);
+
+  if (animalDetected) {
+    detectHold = millis();
+  }
+
+  bool finalDetect = (millis() - detectHold < 15000);
+
+  Serial.print("Final Detect: ");
+  Serial.println(finalDetect);
+
+  // Send to Blynk
+  Blynk.virtualWrite(V0, pirActive);
+  Blynk.virtualWrite(V1, distance);
+  Blynk.virtualWrite(V2, vibDetected);
+
+    if (animalDetected && !prevDetect) {
+
+    Serial.println("🔥 ANIMAL DETECTED 🔥");
+
+    triggerCamera();
+
+    Blynk.virtualWrite(V3, camURL);
+
+    Blynk.logEvent("animal_detect",
+      "Animal detected! Image: http://10.107.201.101/capture");
+
+       digitalWrite(BUZZER_PIN, HIGH);
+    buzzerStartTime = millis();
+    buzzerActive = true;
+
+    lastAlertTime = millis();
+  }
+
+  prevDetect = animalDetected;
+
+    if (WiFi.status() == WL_CONNECTED) {
+
+    HTTPClient http;
+
+    String url = server + "?api_key=" + apiKey +
+                 "&field1=" + String(distance) +
+                 "&field2=" + String(pirActive) +
+                 "&field3=" + String(vibDetected) +
+                 "&field4=" + String(finalDetect);
+
+    http.begin(url);
+    int httpCode = http.GET();
+
+    Serial.print("ThingSpeak Response: ");
+    Serial.println(httpCode);
+
+    http.end();
+  }
+}
+
+
+void setup() {
+
+  Serial.begin(115200);
+
+  pinMode(PIR_PIN, INPUT);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(VIB_PIN, INPUT);
+
+  pinMode(BUZZER_PIN, OUTPUT);   
+  digitalWrite(BUZZER_PIN, LOW);
+
+  digitalWrite(TRIG_PIN, LOW);
+
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  timer.setInterval(5000L, sendData);
+}
+
+// ================= LOOP =================
+void loop() {
+  Blynk.run();
+  timer.run();
+
+  // 🔔 Stop buzzer after 3 sec (ADDED)
+  if (buzzerActive && millis() - buzzerStartTime >= 3000) {
+    digitalWrite(BUZZER_PIN, LOW);
+    buzzerActive = false;
+  }
+}
