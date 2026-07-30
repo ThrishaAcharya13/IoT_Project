@@ -25,8 +25,8 @@ Successfully detects animal intrusion with real-time alerts, image capture, and 
 
 <img width="581" height="200" alt="Image" src="https://github.com/user-attachments/assets/ea40ec8d-394a-4d70-8e05-6ca46cbd4e4a" />
 
-<img width="200" height="600" alt="Image" src="https://github.com/user-attachments/assets/6dfbc41d-bf41-4c2a-b4f8-d280bfb94e65" />
+<img width="300" height="500" alt="Image" src="https://github.com/user-attachments/assets/6dfbc41d-bf41-4c2a-b4f8-d280bfb94e65" />
 
-<img width="200" height="600" alt="Image" src="https://github.com/user-attachments/assets/0ba6b711-379e-4130-b51a-1d850006838a" />
+<img width="300" height="500" alt="Image" src="https://github.com/user-attachments/assets/0ba6b711-379e-4130-b51a-1d850006838a" />
 
 <img width="500" height="500" alt="Image" src="https://github.com/user-attachments/assets/c8fbc66e-4e9e-41d6-8732-ab9106401eba" />
