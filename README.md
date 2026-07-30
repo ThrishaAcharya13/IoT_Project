@@ -23,7 +23,7 @@ Result:
 
 Successfully detects animal intrusion with real-time alerts, image capture, and cloud-based data logging for effective remote monitoring.
 
-
+<img width="772" height="1600" alt="Image" src="https://github.com/user-attachments/assets/0ba6b711-379e-4130-b51a-1d850006838a" />
 
 <img width="720" height="1600" alt="Image" src="https://github.com/user-attachments/assets/6dfbc41d-bf41-4c2a-b4f8-d280bfb94e65" />
 <img width="581" height="278" alt="Image" src="https://github.com/user-attachments/assets/ea40ec8d-394a-4d70-8e05-6ca46cbd4e4a" />
